@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Aashir Fasial | Java Developer",
+  title: "Template Portfolio | Next.js Developer",
   description: "Portfolio",
 };
 
