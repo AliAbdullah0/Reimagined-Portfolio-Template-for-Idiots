@@ -1,6 +1,6 @@
 export const portfolioData = {
   header: {
-    title: "Aashir Faisal.",
+    title: "Ali Abdullah.",
     subtitle: "Web Developer.",
     intro: "Welcome to my creative space!",
   },
