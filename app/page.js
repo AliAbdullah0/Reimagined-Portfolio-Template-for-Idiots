@@ -1,103 +1,130 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect } from "react";
+import * as THREE from "three";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Content from "@/components/Content";
+import { Scene } from "@/components/Scene";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  useEffect(() => {
+    loadModel();
+  }, []);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  function loadModel() {
+    let object;
+    function onModelLoaded() {
+      object.traverse((child) => {
+        let mat = new THREE.MeshPhongMaterial({
+          color: 0x171511,
+          specular: 0xd0cbc7,
+          shininess: 5,
+          flatShading: true,
+        });
+        child.material = mat;
+      });
+      setupAnimation(object);
+    }
+
+    const manager = new THREE.LoadingManager(onModelLoaded);
+    const loader = new OBJLoader(manager);
+    loader.load("https://assets.codepen.io/557388/1405+Plane_1.obj", (obj) => {
+      object = obj;
+    });
+  }
+
+  function setupAnimation(model) {
+    const scene = new Scene(model);
+    const plane = scene.modelGroup;
+
+    gsap.fromTo("canvas", { x: "50%", autoAlpha: 0 }, { duration: 1, x: "0%", autoAlpha: 1 });
+    gsap.to(".loading", { autoAlpha: 0 });
+    gsap.to(".scroll-cta", { opacity: 1 });
+    gsap.set("svg", { autoAlpha: 1 });
+
+    const tau = Math.PI * 2;
+    gsap.set(plane.rotation, { y: tau * -0.25 });
+    gsap.set(plane.position, { x: 80, y: -32, z: -60 });
+
+    scene.render();
+
+    const sectionDuration = 1;
+
+    gsap.fromTo(
+      scene.views[1],
+      { height: 1, bottom: 0 },
+      {
+        height: 0,
+        bottom: 1,
+        ease: "none",
+        scrollTrigger: { trigger: ".blueprint", scrub: true, start: "bottom bottom", end: "bottom top" },
+      }
+    );
+
+    gsap.to(".ground", {
+      y: "30%",
+      scrollTrigger: { trigger: ".ground-container", scrub: true, start: "top bottom", end: "bottom top" },
+    });
+
+    gsap.from(".clouds", {
+      y: "25%",
+      scrollTrigger: { trigger: ".ground-container", scrub: true, start: "top bottom", end: "bottom top" },
+    });
+
+    const tl = gsap.timeline({
+      onUpdate: scene.render,
+      scrollTrigger: { trigger: ".content", scrub: true, start: "top top", end: "bottom bottom" },
+      defaults: { duration: sectionDuration, ease: "power2.inOut" },
+    });
+
+    let delay = 0;
+    tl.to(".scroll-cta", { duration: 0.25, opacity: 0 }, delay);
+    tl.to(plane.position, { x: -10, ease: "power1.in" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: tau * 0.25, y: 0, z: -tau * 0.05, ease: "power1.inOut" }, delay);
+    tl.to(plane.position, { x: -40, y: 0, z: -60, ease: "power1.inOut" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: tau * 0.25, y: 0, z: tau * 0.05, ease: "power3.inOut" }, delay);
+    tl.to(plane.position, { x: 40, y: 0, z: -60, ease: "power2.inOut" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: tau * 0.2, y: 0, z: -tau * 0.1, ease: "power3.inOut" }, delay);
+    tl.to(plane.position, { x: -40, y: 0, z: -30, ease: "power2.inOut" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: 0, z: 0, y: tau * 0.25 }, delay);
+    tl.to(plane.position, { x: 0, y: -10, z: 50 }, delay);
+
+    delay += sectionDuration * 2;
+    tl.to(plane.rotation, { x: tau * 0.25, y: tau * 0.5, z: 0, ease: "power4.inOut" }, delay);
+    tl.to(plane.position, { z: 30, ease: "power4.inOut" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: tau * 0.25, y: tau * 0.5, z: 0, ease: "power4.inOut" }, delay);
+    tl.to(plane.position, { z: 60, x: 30, ease: "power4.inOut" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: tau * 0.35, y: tau * 0.75, z: tau * 0.6, ease: "power4.inOut" }, delay);
+    tl.to(plane.position, { z: 100, x: 20, y: 0, ease: "power4.inOut" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: tau * 0.15, y: tau * 0.85, z: -tau * 0, ease: "power1.in" }, delay);
+    tl.to(plane.position, { z: -150, x: 0, y: 0, ease: "power1.inOut" }, delay);
+
+    delay += sectionDuration;
+    tl.to(plane.rotation, { x: -tau * 0.05, y: tau, z: -tau * 0.1, ease: "none" }, delay);
+    tl.to(plane.position, { x: 0, y: 30, z: 320, ease: "power1.in" }, delay);
+  }
+
+  return (
+    <div>
+      <Content />
     </div>
   );
 }
