@@ -54,7 +54,7 @@ export const portfolioData = {
     },
     {
       id: "end",
-      title: "Fin.",
+      title: "Finish.",
       content: "",
       alignment: "left",
       dark: false,
