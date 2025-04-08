@@ -61,9 +61,9 @@ export const portfolioData = {
       isEnd: true,
       credits: [
         {
-          text: "3D Models by",
-          link: "https://poly.google.com",
-          label: "Google",
+          text: "Created by",
+          link: "https://github.com/AliAbdullah0",
+          label: "Ali Abdullah",
         },
         {
           text: "Animated with",
