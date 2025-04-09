@@ -2,9 +2,6 @@
 
 This is a visually engaging portfolio template recreated using **Next.js**, **GSAP**, **Three.js**, and **Vanilla JS**, inspired by one of the GSAP documentation demo projects.
 
-## 🚀 Live Preview
-<a href="reimaginedportfolio.vercel.app">reimaginedportfolio</a>
-
 ## 📁 Features
 
 - ⚡ Smooth GSAP animations
